@@ -9,6 +9,7 @@ if (port == null || port == "") {
   port = 3000;
 }
 
+//Access MongoDB
 const mongoDB = process.env.MONGODB_URL;
 mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
@@ -17,9 +18,11 @@ db.on("error", console.error.bind(console, "MongoDB connection error:"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+//Load two main product files
 const Controller = require("./products/controllers");
 const Manufacturers = require("./products/manufaturers");
 
+//Basic greeting message at base URL
 app.get("/", (_, res) => {
   res.send("Game controller info storage.");
 });
@@ -155,7 +158,7 @@ app.put("/manufacturers/:id/:key/:value", (req, res) => {
 //     });
 // });
 
-//still need to find by manufacturer ID and publish
+//Find all controllers by manufacturer ID
 app.get("/controllersByManu/:manuID", (req, res) => {
   const { manuID } = req.params;
   console.log(manuID)
