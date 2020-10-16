@@ -2,32 +2,17 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-
-// const mongoDB =
-//   "mongodb+srv://adman85:BiSwaSS21-@cluster0.saqjx.mongodb.net/controllers?retryWrites=true&w=majority";
-// mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
-// const db = mongoose.connection;
-// db.on("error", console.error.bind(console, "MongoDB connection error:"));
-
-const db = process.env.MONGODB_URL;
-
-const connectDB = async () => {
-  try {
-    await mongoose.connect(db, {
-      useUnifiedTopology: true,
-      useNewUrlParser: true
-    });
-    console.log("MongoDB is Connected...");
-  } catch (err) {
-    console.error(err.message);
-    process.exit(1);
-  }
-};
+require('dotenv').config();
 
 let port = process.env.PORT;
 if (port == null || port == "") {
   port = 3000;
 }
+
+const mongoDB = process.env.MONGODB_URL;
+mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -38,10 +23,6 @@ const Manufacturers = require("./products/manufaturers");
 app.get("/", (_, res) => {
   res.send("Game controller info storage.");
 });
-
-// app.get('/controllers', (req, res) =>{
-//   const instance = await Controller.findOne({ ... });
-// })
 
 //check errors function
 const checkError = (err, res) => {
@@ -92,7 +73,6 @@ app.post("/manufacturers", (req, res) => {
 app.get("/controllers", (req, res) => {
   Controller.find((err, controllers) => {
     checkError(err, res);
-    res.json(controllers);
   })
     .populate("manufacturer")
     .exec(function (err, controller) {
@@ -174,9 +154,8 @@ app.put("/controllers/:id", (req, res) => {
 //still need to find by manufacturer ID and publish
 app.get('/controllers/:manuID', (req, res) => {
   const { manuID } = req.params;
-  Controller.find({}(err, controllers) => {
+  Controller.find({[manufacturer[0]]: manuID}, (err, controllers) => {
     checkError(err, res);
-    res.json(controllers);
   })
     .populate("manufacturer")
     .exec(function (err, controller) {
