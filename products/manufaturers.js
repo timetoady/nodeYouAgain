@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-let ManufacturerSchema = new Schema({
-  manName: String,
+let Manufacturers = new Schema({
+  name: String,
   address: String,
   phone: Number,
 });
 
-module.exports = mongoose.model("Manufacturer", ManufacturerSchema);
+module.exports = mongoose.model("Manufacturer", Manufacturers);

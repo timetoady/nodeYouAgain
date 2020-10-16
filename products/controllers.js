@@ -6,7 +6,8 @@ let ControllerSchema = new Schema({
     category: String,
     cost: Number,
     quantity: Number,
-    // manufacturerID: 
+    manufacturer: [{ type: Schema.Types.ObjectId, ref: 'Manufacturers' }]
+    
 })
 
 module.exports = mongoose.model('Controller', ControllerSchema)
