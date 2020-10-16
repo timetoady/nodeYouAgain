@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-require('dotenv').config();
+require("dotenv").config();
 
 let port = process.env.PORT;
 if (port == null || port == "") {
@@ -44,8 +44,13 @@ app.post("/controllers", (req, res) => {
         ? res.send(`Looks like we've got an Error: ${err}`)
         : Controller.find((err, manufacturers) => {
             checkError(err, res);
-            res.json(manufacturers);
-          });
+          })
+            .populate("manufacturer")
+            .exec(function (err, controller) {
+              err
+                ? res.send(`Oops! There was an error: ${err}`)
+                : res.json(controller);
+            });
     }
   );
 });
@@ -140,35 +145,34 @@ app.put("/manufacturers/:id/:key/:value", (req, res) => {
   });
 });
 
-
-//To populate manufacturer area in controllers
-app.put("/controllers/:id", (req, res) => {
-  const { id } = req.params;
-  Controller.findOne({ _id: `${id}` })
-    .populate("manufacturer")
-    .exec(function (err, controller) {
-      err ? res.send(`Oops! There was an error: ${err}`) : res.json(controller);
-    });
-});
+// //To populate manufacturer area in controllers
+// app.put("/controllers/:id", (req, res) => {
+//   const { id } = req.params;
+//   Controller.findOne({ _id: `${id}` })
+//     .populate("manufacturer")
+//     .exec(function (err, controller) {
+//       err ? res.send(`Oops! There was an error: ${err}`) : res.json(controller);
+//     });
+// });
 
 //still need to find by manufacturer ID and publish
-app.get('/controllers/:manuID', (req, res) => {
+app.get("/controllersByManu/:manuID", (req, res) => {
   const { manuID } = req.params;
-  Controller.find({[manufacturer[0]]: manuID}, (err, controllers) => {
+  console.log(manuID)
+  Controller.find({ manufacturer: {$all: [manuID]} }, (err) => {
     checkError(err, res);
   })
     .populate("manufacturer")
     .exec(function (err, controller) {
       err ? res.send(`Oops! There was an error: ${err}`) : res.json(controller);
     });
-})
+});
 
 // Controller.findOne({ name: `${name}` }, (err, controller) => {
 //   if (err) res.send(`Error was: ${err}`);
 //   if (null) res.send(`${name} not found`);
 //   res.json(controller);
 // });
-
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
