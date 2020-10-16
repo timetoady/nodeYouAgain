@@ -41,17 +41,17 @@ app.post("/controllers", (req, res) => {
       category: req.query.category,
       cost: req.query.cost,
       quantity: req.query.quantity,
-      manufacturer: req.query.manufacturer._id
+      manufacturer: req.query.manufacturer,
     },
     (err) => {
       err
-      ? res.send(`Looks like we've got an Error: ${err}`)
-      : Controller.find((err, manufacturers) => {
-          checkError(err, res);
-          res.json(manufacturers);
-        });
-      
-    });
+        ? res.send(`Looks like we've got an Error: ${err}`)
+        : Controller.find((err, manufacturers) => {
+            checkError(err, res);
+            res.json(manufacturers);
+          });
+    }
+  );
 });
 
 //Create Manufacterer entry
@@ -78,7 +78,11 @@ app.get("/controllers", (req, res) => {
   Controller.find((err, controllers) => {
     checkError(err, res);
     res.json(controllers);
-  });
+  })
+    .populate("manufacturer")
+    .exec(function (err, controller) {
+      err ? res.send(`Oops! There was an error: ${err}`) : res.json(controller);
+    });
 });
 
 //Get all current manufacterers
@@ -102,14 +106,18 @@ app.get("/controllers/:name", (req, res) => {
 //Delete a controller by id
 app.delete("/controllers/:id", (req, res) => {
   Controller.remove({ _id: req.params.id }, (err) => {
-    err ? res.send(`Error! ${err}`) : res.send(`${req.params.id} removed`);
+    err
+      ? res.send(`Error! ${err}`)
+      : res.send(`Controller ID ${req.params.id} removed`);
   });
 });
 
 //delete a manufacturer by id
 app.delete("/manufacturers/:id", (req, res) => {
   Manufacturers.remove({ _id: req.params.id }, (err) => {
-    err ? res.send(`Error! ${err}`) : res.send(`${req.params.id} removed.`);
+    err
+      ? res.send(`Error! ${err}`)
+      : res.send(`Manufacturer ID ${req.params.id} removed.`);
   });
 });
 
@@ -126,20 +134,30 @@ app.put("/controllers/:id/:key/:value", (req, res) => {
 });
 
 //Find and change document key's value by id via direct params
-app.put("/controllers/:id/:key/:value", (req, res) => {
+app.put("/manufacturers/:id/:key/:value", (req, res) => {
   const { id, key, value } = req.params;
   data = { [key]: value };
   Manufacturers.findByIdAndUpdate(id, data, { new: true }, function (
     err,
-    controller
+    manufacturer
   ) {
-    err ? res.send(`Survey says: Error! ${err}`) : res.json(controller);
+    err ? res.send(`Survey says: Error! ${err}`) : res.json(manufacturer);
   });
 });
 
+// //To populate manufacturer area
+// app.put("/controllers/:id/:manuId", (req, res) => {
+//   const { id, manuId } = req.params;
+//   Controller.findOne({ _id: `${id}` })
+//     .populate("manufacturer")
+//     .exec(function (err, controller) {
+//       err ? res.send(`Oops! There was an error: ${err}`) : res.json(controller);
+//     });
+// });
+
 //To populate manufacturer area
-app.put("/controllers/:id/:manuId", (req, res) => {
-  const { id, manuId } = req.params;
+app.put("/controllers/:id", (req, res) => {
+  const { id } = req.params;
   Controller.findOne({ _id: `${id}` })
     .populate("manufacturer")
     .exec(function (err, controller) {
@@ -147,16 +165,7 @@ app.put("/controllers/:id/:manuId", (req, res) => {
     });
 });
 
-//To populate manufacturer area
-app.put('/controllers/:id/:manuId', (req, res) => {
-  const { id, manuId } = req.params;
-  Controller.findOne({ _id: `${id}` })
-  .populate('manufacturer')
-  .exec(function (err,controller) {
-    err ? res.send(`Oops! There was an error: ${err}`) : res.json(controller);
-  })
-    
-  });
+//still need to find by manufacturer ID and publish
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

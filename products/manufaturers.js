@@ -7,4 +7,4 @@ let Manufacturers = new Schema({
   phone: Number,
 });
 
-module.exports = mongoose.model("Manufacturer", Manufacturers);
+module.exports = mongoose.model("Manufacturers", Manufacturers);
