@@ -3,11 +3,26 @@ const app = express();
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
-const mongoDB =
-  "mongodb+srv://adman85:BiSwaSS21-@cluster0.saqjx.mongodb.net/controllers?retryWrites=true&w=majority";
-mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "MongoDB connection error:"));
+// const mongoDB =
+//   "mongodb+srv://adman85:BiSwaSS21-@cluster0.saqjx.mongodb.net/controllers?retryWrites=true&w=majority";
+// mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
+// const db = mongoose.connection;
+// db.on("error", console.error.bind(console, "MongoDB connection error:"));
+
+const db = process.env.MONGODB_URL;
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(db, {
+      useUnifiedTopology: true,
+      useNewUrlParser: true
+    });
+    console.log("MongoDB is Connected...");
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1);
+  }
+};
 
 let port = process.env.PORT;
 if (port == null || port == "") {
